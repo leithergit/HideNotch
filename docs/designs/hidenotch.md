@@ -69,6 +69,7 @@ enum BarGeometry {
 - `level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue - 1)`。
 - `collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]`；**不含** `.fullScreenAuxiliary`，因此不出现在全屏空间。
 - `isReleasedWhenClosed = false`。
+- `canHide = false`：防止其他应用触发「隐藏其他」（Cmd-Opt-H）时把黑条一并隐藏。
 
 ### 4.3 `OverlayController`
 
@@ -86,7 +87,9 @@ protocol BarWindowHosting: AnyObject { var frame: CGRect { get }; func show(at: 
 - 由 `AppDelegate` 订阅以下通知并调用 `refresh()`：
   - `NSApplication.didChangeScreenParametersNotification`
   - `NSWorkspace.didWakeNotification`
+  - `NSWorkspace.screensDidWakeNotification`
   - `NSWorkspace.activeSpaceDidChangeNotification`
+- 唤醒后屏幕参数可能尚未稳定：收到通知时立即 `refresh()` 一次，并在 1 秒后（`Task { @MainActor in ... }`，`[weak self]`）再 `refresh()` 一次。
 
 ### 4.4 `Preferences`
 
@@ -96,20 +99,30 @@ protocol BarWindowHosting: AnyObject { var frame: CGRect { get }; func show(at: 
 ### 4.5 `LoginItemService`
 
 ```swift
-protocol LoginItemControlling { var isEnabled: Bool { get }; func setEnabled(_ on: Bool) throws }
+public enum LoginItemState: Equatable, Sendable { case enabled, disabled, requiresApproval }
+
+@MainActor
+public protocol LoginItemControlling: AnyObject {
+    var state: LoginItemState { get }
+    func setEnabled(_ on: Bool) throws
+    func openSystemSettings()
+}
 ```
 
-- 生产实现基于 `SMAppService.mainApp`：`isEnabled` 读取 `status == .enabled`；`setEnabled` 调用 `register()` / `unregister()`。
+- 生产实现基于 `SMAppService.mainApp`：`state` 映射 `status`（`.enabled` → `.enabled`；`.requiresApproval` → `.requiresApproval`；其余 → `.disabled`）；`setEnabled` 调用 `register()` / `unregister()`；`openSystemSettings()` 调用 `SMAppService.openSystemSettingsLoginItems()`。
 - 状态以系统为准，不另存 UserDefaults。
 
 ### 4.6 `StatusItemController`
 
-- `NSStatusItem`，图标使用 SF Symbol（如 `rectangle.topthird.inset.filled`）。
+- `NSStatusItem`，图标使用 SF Symbol（如 `rectangle.topthird.inset.filled`）；若 `NSImage(systemSymbolName:...)` 加载失败（返回 nil），回退为文字标题 `"HN"`，避免图标不可见。
 - 菜单：
   - 「黑色菜单栏」（✓ 反映 `Preferences.overlayEnabled`）→ 切换并驱动 `OverlayController.isEnabled`。
-  - 「开机自启」（✓ 反映 `LoginItemControlling.isEnabled`）→ `setEnabled`；抛错时菜单项标题附加“（失败）”，并记录 `os_log`。
+  - 「开机自启」（✓ 仅当 `LoginItemControlling.state == .enabled`）：
+    - 点击时若当前 `state == .requiresApproval`，调用 `openSystemSettings()` 打开系统设置登录项页面，不调用 `setEnabled`。
+    - 否则 `.enabled` → `setEnabled(false)`；`.disabled` → `setEnabled(true)`；抛错时记录 `os_log` 并置失败标记。
+    - 标题优先级：失败标记 → 「开机自启（失败）」；否则 `state == .requiresApproval` → 「开机自启（需在系统设置中批准）」；否则「开机自启」。
   - 分隔线，「退出」。
-- 菜单每次打开前（`menuWillOpen`）刷新勾选状态。
+- 菜单每次打开前（`menuWillOpen`）刷新勾选状态与标题。
 
 ## 5. 数据流
 
@@ -130,7 +143,7 @@ protocol LoginItemControlling { var isEnabled: Bool { get }; func setEnabled(_ o
 | 无刘海屏幕 / 外接屏 | 不创建窗口 |
 | 插拔显示器、改分辨率 | 屏幕参数通知 → `refresh()` |
 | 亮色壁纸下菜单栏文字颜色 | 当前壁纸已验证正常；列入验收清单，出问题再加兜底，v1 不预先实现 |
-| ad-hoc 签名下 `SMAppService` | 可能需要在系统设置中批准；失败时菜单显式提示，不静默 |
+| ad-hoc 签名下 `SMAppService` | 可能需要在系统设置中批准；失败时菜单显式提示，不静默。注册成功但 `status == .requiresApproval` 时，菜单显示「开机自启（需在系统设置中批准）」（勾选为关），再次点击打开系统设置登录项页面，而非重复调用 `register()` |
 
 ## 7. 测试
 
