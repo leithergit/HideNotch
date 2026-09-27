@@ -24,6 +24,11 @@ struct BarWindowTests {
         #expect(!window.isReleasedWhenClosed)
     }
 
+    @Test func cannotBeHiddenByHideOthers() {
+        // 回归：其他应用 Cmd-Opt-H「隐藏其他」不应把黑条一并隐藏
+        #expect(!BarWindow().canHide)
+    }
+
     @Test func joinsAllSpacesButNotFullScreen() {
         let behavior = BarWindow().collectionBehavior
         #expect(behavior.contains(.canJoinAllSpaces))

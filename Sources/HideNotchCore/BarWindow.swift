@@ -17,6 +17,8 @@ public final class BarWindow: NSWindow, BarWindowHosting {
         isOpaque = true
         hasShadow = false
         ignoresMouseEvents = true
+        // Other apps' Cmd-Opt-H "Hide Others" must not hide the bar permanently.
+        canHide = false
         isReleasedWhenClosed = false
         level = Self.barLevel
         // No .fullScreenAuxiliary: the bar must not appear in full-screen spaces.
