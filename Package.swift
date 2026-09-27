@@ -7,6 +7,7 @@ let package = Package(
     targets: [
         .target(name: "HideNotchCore"),
         .executableTarget(name: "HideNotch", dependencies: ["HideNotchCore"]),
+        .executableTarget(name: "IconGen", dependencies: ["HideNotchCore"]),
         .testTarget(name: "HideNotchTests", dependencies: ["HideNotchCore"]),
     ]
 )

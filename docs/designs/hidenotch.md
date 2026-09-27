@@ -38,8 +38,9 @@
 - Targets：
   - `HideNotchCore`（library）：全部逻辑，可测试。
   - `HideNotch`（executable）：`main.swift` 薄入口，仅创建 `NSApplication` 与 `AppDelegate`。
+  - `IconGen`（executable）：`main.swift` 用法 `IconGen <output.iconset dir>`，依赖 `HideNotchCore`，调用 `NotchIcon.appIconPNG(pixels:)` 写出标准 10 个 `.iconset` 文件（16/32/32/64/128/256/256/512/512/1024）；参数错误或写入失败时非零退出并打印原因。
   - `HideNotchTests`：Swift Testing 单元测试。
-- `scripts/build-app.sh`：`swift build -c release` → 组装 `HideNotch.app`（`Info.plist` 含 `LSUIElement=YES`、`CFBundleIdentifier=com.leether.HideNotch`）→ ad-hoc `codesign` → 复制到 `~/Applications`。
+- `scripts/build-app.sh`：`swift build -c release` → 用 `IconGen` 生成 `.build/AppIcon.iconset` → `iconutil -c icns` 产出 `Contents/Resources/AppIcon.icns` → 组装 `HideNotch.app`（`Info.plist` 含 `LSUIElement=YES`、`CFBundleIdentifier=com.leether.HideNotch`、`CFBundleIconFile=AppIcon`）→ ad-hoc `codesign` → 复制到 `~/Applications`。
 
 ## 4. 组件
 
@@ -114,7 +115,7 @@ public protocol LoginItemControlling: AnyObject {
 
 ### 4.6 `StatusItemController`
 
-- `NSStatusItem`，图标使用 SF Symbol（如 `rectangle.topthird.inset.filled`）；若 `NSImage(systemSymbolName:...)` 加载失败（返回 nil），回退为文字标题 `"HN"`，避免图标不可见。
+- `NSStatusItem`，图标使用 `NotchIcon.menuBarImage()`：代码绘制的自定义 glyph（屏幕轮廓 + 顶部实心条 + 从条中央向下凸出的刘海），18×18 pt 模板图（`isTemplate = true`，随浅色/深色菜单栏自动着色）。同一套 `NotchIcon`（`Sources/HideNotchCore/NotchIcon.swift`）也用于生成 App 图标（见 §3 `IconGen`），两者共享同一份 `GlyphLayout` 几何比例，不重复实现。
 - 菜单：
   - 「隐藏刘海」（✓ 反映 `Preferences.overlayEnabled`）→ 切换并驱动 `OverlayController.isEnabled`。
     - 从关闭切到开启前，先弹出确认 `NSAlert`（`confirmEnable`，默认实现 `askToEnable()`）：`NSApplication.shared.activate()` 后展示，messageText 「隐藏刘海」，informativeText 「将把带刘海屏幕的菜单栏背景变成黑色，与刘海融为一体。」，按钮「开启」（默认）/「取消」。取消则不写入 preference、不创建窗口、菜单项保持 `.off`。
