@@ -26,10 +26,18 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
             name: NSWorkspace.didWakeNotification, object: nil)
         workspace.addObserver(
             self, selector: #selector(layoutChanged),
+            name: NSWorkspace.screensDidWakeNotification, object: nil)
+        workspace.addObserver(
+            self, selector: #selector(layoutChanged),
             name: NSWorkspace.activeSpaceDidChangeNotification, object: nil)
     }
 
     @objc private func layoutChanged(_ notification: Notification) {
         overlay.refresh()
+        // Screens may not have settled yet (e.g. right after wake); refresh again shortly after.
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            self?.overlay.refresh()
+        }
     }
 }
