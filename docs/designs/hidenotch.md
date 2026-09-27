@@ -148,6 +148,17 @@ public protocol LoginItemControlling: AnyObject {
 | 亮色壁纸下菜单栏文字颜色 | 当前壁纸已验证正常；列入验收清单，出问题再加兜底，v1 不预先实现 |
 | ad-hoc 签名下 `SMAppService` | 可能需要在系统设置中批准；失败时菜单显式提示，不静默。注册成功但 `status == .requiresApproval` 时，菜单显示「开机自启（需在系统设置中批准）」（勾选为关），再次点击打开系统设置登录项页面，而非重复调用 `register()` |
 
+### 6.1 已知限制（用户已接受，2026-09-27）
+
+| 场景 | 结论 | 依据 |
+|---|---|---|
+| 锁屏 / 睡眠唤醒后的解锁界面 | 无法处理，刘海可见 | Spike：黑条窗口层级设为 `CGShieldingWindowLevel() + 1` 及 `CGWindowLevelForKey(.maximumWindow) - 1`，并设置 `canBecomeVisibleWithoutLogin = true`；锁屏期间 AppKit 仍报告窗口可见，但 macOS 27 锁屏界面不合成会话内的应用窗口，用户实测均不可见 |
+| 重启后首个登录界面（FileVault 开启） | 无法处理 | 该界面为 FileVault 启动前解锁环境，第三方代码不可运行 |
+| 注销 / 切换用户的登录窗口 | 未实现 | 需安装 `/Library/LaunchAgents` 登录前代理（管理员权限），v1 不做 |
+| 不显示刘海的分辨率 | 不处理（符合目标） | `safeAreaInsets.top == 0`，无刘海可隐藏 |
+
+唯一可能覆盖锁屏的方案是改写壁纸（在壁纸图片顶部画黑带，TopNotch 的思路），未采用：会与壁纸轮换工具（本机 OnlySwitch 按文件夹轮换）互相覆盖，不支持动态 / 航拍壁纸，需要负责还原用户壁纸，且 TopNotch 在 macOS 27 上已失效。
+
 ## 7. 测试
 
 **单元测试（TDD，Swift Testing）**
