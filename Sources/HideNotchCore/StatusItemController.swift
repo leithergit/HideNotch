@@ -59,8 +59,13 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
     }
 
     @objc func toggleLoginItem() {
+        if loginItem.state == .requiresApproval {
+            loginItem.openSystemSettings()
+            syncMenuState()
+            return
+        }
         do {
-            try loginItem.setEnabled(!loginItem.isEnabled)
+            try loginItem.setEnabled(loginItem.state != .enabled)
             loginItemFailed = false
         } catch {
             loginItemFailed = true
@@ -75,7 +80,13 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
 
     private func syncMenuState() {
         overlayItem.state = preferences.overlayEnabled ? .on : .off
-        loginMenuItem.state = loginItem.isEnabled ? .on : .off
-        loginMenuItem.title = loginItemFailed ? "\(Self.loginTitle)（失败）" : Self.loginTitle
+        loginMenuItem.state = loginItem.state == .enabled ? .on : .off
+        if loginItemFailed {
+            loginMenuItem.title = "\(Self.loginTitle)（失败）"
+        } else if loginItem.state == .requiresApproval {
+            loginMenuItem.title = "\(Self.loginTitle)（需在系统设置中批准）"
+        } else {
+            loginMenuItem.title = Self.loginTitle
+        }
     }
 }

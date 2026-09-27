@@ -46,7 +46,7 @@ struct StatusItemControllerTests {
     @Test func toggleLoginItemEnables() {
         let (sut, _, _) = makeSUT()
         sut.toggleLoginItem()
-        #expect(login.isEnabled)
+        #expect(login.state == .enabled)
         #expect(sut.loginMenuItem.state == .on)
         #expect(sut.loginMenuItem.title == "开机自启")
     }
@@ -55,7 +55,7 @@ struct StatusItemControllerTests {
         let (sut, _, _) = makeSUT()
         login.shouldFail = true
         sut.toggleLoginItem()
-        #expect(!login.isEnabled)
+        #expect(login.state == .disabled)
         #expect(sut.loginMenuItem.state == .off)
         #expect(sut.loginMenuItem.title == "开机自启（失败）")
     }
@@ -72,8 +72,31 @@ struct StatusItemControllerTests {
 
     @Test func menuWillOpenResyncsExternalChanges() {
         let (sut, _, _) = makeSUT()
-        login.isEnabled = true  // 用户在系统设置里改了登录项
+        login.state = .enabled  // 用户在系统设置里改了登录项
         sut.menuWillOpen(sut.menu)
         #expect(sut.loginMenuItem.state == .on)
+    }
+
+    @Test func loginItemPendingApprovalIsShown() {
+        let (sut, _, _) = makeSUT()
+        login.stateAfterEnable = .requiresApproval
+        sut.toggleLoginItem()
+        #expect(sut.loginMenuItem.title == "开机自启（需在系统设置中批准）")
+        #expect(sut.loginMenuItem.state == .off)
+    }
+
+    @Test func clickingWhilePendingOpensSettings() {
+        let (sut, _, _) = makeSUT()
+        login.state = .requiresApproval
+        sut.toggleLoginItem()
+        #expect(login.openedSettings == 1)
+        #expect(login.state == .requiresApproval)
+    }
+
+    @Test func menuWillOpenShowsPendingApproval() {
+        let (sut, _, _) = makeSUT()
+        login.state = .requiresApproval
+        sut.menuWillOpen(sut.menu)
+        #expect(sut.loginMenuItem.title == "开机自启（需在系统设置中批准）")
     }
 }

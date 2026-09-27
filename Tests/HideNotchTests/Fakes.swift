@@ -40,10 +40,18 @@ struct LoginItemError: Error {}
 
 @MainActor
 final class FakeLoginItem: LoginItemControlling {
-    var isEnabled = false
+    var state: LoginItemState = .disabled
     var shouldFail = false
+    /// What `setEnabled(true)` transitions to, to simulate approval pending.
+    var stateAfterEnable: LoginItemState = .enabled
+    var openedSettings = 0
+
     func setEnabled(_ on: Bool) throws {
         if shouldFail { throw LoginItemError() }
-        isEnabled = on
+        state = on ? stateAfterEnable : .disabled
+    }
+
+    func openSystemSettings() {
+        openedSettings += 1
     }
 }
