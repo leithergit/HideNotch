@@ -36,8 +36,14 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
 
     public func install() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        item.button?.image = NSImage(
+        if let image = NSImage(
             systemSymbolName: "rectangle.topthird.inset.filled", accessibilityDescription: "HideNotch")
+        {
+            item.button?.image = image
+        } else {
+            // Fall back to a text title so the item is never invisible.
+            item.button?.title = "HN"
+        }
         item.menu = menu
         statusItem = item
     }
