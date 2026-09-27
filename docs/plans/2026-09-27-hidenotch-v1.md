@@ -17,7 +17,8 @@
 - Bundle ID：`com.leether.HideNotch`；`LSUIElement=YES`（不在 Dock 显示）。
 - 黑条窗口层级：`NSWindow.Level.mainMenu.rawValue - 1`；`collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]`，不含 `.fullScreenAuxiliary`。
 - 黑条高度：`max(frame.maxY - visibleFrame.maxY, safeAreaInsets.top)`；`safeAreaInsets.top <= 0` 的屏幕不处理。
-- 菜单文案：「黑色菜单栏」「开机自启」「退出」；开机自启出错时标题为「开机自启（失败）」。
+- 菜单文案：「隐藏刘海」「开机自启」「退出」；开机自启出错时标题为「开机自启（失败）」。
+- 从菜单开启「隐藏刘海」前弹出确认 `NSAlert`：messageText 「隐藏刘海」，informativeText 「将把带刘海屏幕的菜单栏背景变成黑色，与刘海融为一体。」，按钮「开启」（默认）/「取消」；关闭与 App 启动不弹确认。
 - `overlayEnabled` 偏好默认 `true`。
 - 不直接提交到 `main`；在 `feature/hidenotch-v1` 分支上小步提交，提交信息末尾附：
   `Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>`

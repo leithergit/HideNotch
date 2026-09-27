@@ -9,17 +9,22 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
     private let preferences: Preferences
     private let overlay: OverlayController
     private let loginItem: LoginItemControlling
+    private let confirmEnable: @MainActor () -> Bool
     private var statusItem: NSStatusItem?
     private var loginItemFailed = false
 
     let menu = NSMenu()
-    let overlayItem = NSMenuItem(title: "黑色菜单栏", action: #selector(toggleOverlay), keyEquivalent: "")
+    let overlayItem = NSMenuItem(title: "隐藏刘海", action: #selector(toggleOverlay), keyEquivalent: "")
     let loginMenuItem = NSMenuItem(title: StatusItemController.loginTitle, action: #selector(toggleLoginItem), keyEquivalent: "")
 
-    public init(preferences: Preferences, overlay: OverlayController, loginItem: LoginItemControlling) {
+    public init(
+        preferences: Preferences, overlay: OverlayController, loginItem: LoginItemControlling,
+        confirmEnable: @escaping @MainActor () -> Bool = StatusItemController.askToEnable
+    ) {
         self.preferences = preferences
         self.overlay = overlay
         self.loginItem = loginItem
+        self.confirmEnable = confirmEnable
         super.init()
 
         let quitItem = NSMenuItem(title: "退出", action: #selector(quit), keyEquivalent: "q")
@@ -53,9 +58,25 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
     }
 
     @objc func toggleOverlay() {
-        preferences.overlayEnabled.toggle()
-        overlay.isEnabled = preferences.overlayEnabled
+        let enable = !preferences.overlayEnabled
+        if enable && !confirmEnable() {
+            syncMenuState()
+            return
+        }
+        preferences.overlayEnabled = enable
+        overlay.isEnabled = enable
         syncMenuState()
+    }
+
+    /// Activates the (accessory) app before presenting the alert, so it doesn't appear behind other windows.
+    public static func askToEnable() -> Bool {
+        NSApplication.shared.activate()
+        let alert = NSAlert()
+        alert.messageText = "隐藏刘海"
+        alert.informativeText = "将把带刘海屏幕的菜单栏背景变成黑色，与刘海融为一体。"
+        alert.addButton(withTitle: "开启")
+        alert.addButton(withTitle: "取消")
+        return alert.runModal() == .alertFirstButtonReturn
     }
 
     @objc func toggleLoginItem() {

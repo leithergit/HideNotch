@@ -39,6 +39,13 @@ enum Screens {
 struct LoginItemError: Error {}
 
 @MainActor
+final class ConfirmSpy {
+    var answer = true
+    var calls = 0
+    func ask() -> Bool { calls += 1; return answer }
+}
+
+@MainActor
 final class FakeLoginItem: LoginItemControlling {
     var state: LoginItemState = .disabled
     var shouldFail = false

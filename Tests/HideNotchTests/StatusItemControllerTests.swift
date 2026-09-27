@@ -8,6 +8,7 @@ struct StatusItemControllerTests {
     let screens = FakeScreens()
     let factory = WindowFactory()
     let login = FakeLoginItem()
+    let confirm = ConfirmSpy()
 
     func makeSUT(overlayEnabled: Bool = true) -> (StatusItemController, Preferences, OverlayController) {
         let defaults = UserDefaults(suiteName: suite)!
@@ -17,13 +18,14 @@ struct StatusItemControllerTests {
         screens.list = [Screens.notched]
         let overlay = OverlayController(screens: screens, makeWindow: factory.make)
         overlay.isEnabled = prefs.overlayEnabled
-        let sut = StatusItemController(preferences: prefs, overlay: overlay, loginItem: login)
+        let sut = StatusItemController(
+            preferences: prefs, overlay: overlay, loginItem: login, confirmEnable: confirm.ask)
         return (sut, prefs, overlay)
     }
 
     @Test func menuHasToggleLoginAndQuit() {
         let (sut, _, _) = makeSUT()
-        #expect(sut.menu.items.map(\.title) == ["黑色菜单栏", "开机自启", "", "退出"])
+        #expect(sut.menu.items.map(\.title) == ["隐藏刘海", "开机自启", "", "退出"])
         #expect(sut.menu.items[2].isSeparatorItem)
     }
 
@@ -41,6 +43,28 @@ struct StatusItemControllerTests {
         #expect(!overlay.isEnabled)
         #expect(overlay.windows.isEmpty)
         #expect(sut.overlayItem.state == .off)
+        #expect(confirm.calls == 0)
+    }
+
+    @Test func enablingAsksAndCancelKeepsOff() {
+        let (sut, prefs, overlay) = makeSUT(overlayEnabled: false)
+        confirm.answer = false
+        sut.toggleOverlay()
+        #expect(confirm.calls == 1)
+        #expect(!prefs.overlayEnabled)
+        #expect(!overlay.isEnabled)
+        #expect(overlay.windows.isEmpty)
+        #expect(sut.overlayItem.state == .off)
+    }
+
+    @Test func enablingConfirmedTurnsOn() {
+        let (sut, prefs, overlay) = makeSUT(overlayEnabled: false)
+        confirm.answer = true
+        sut.toggleOverlay()
+        #expect(confirm.calls == 1)
+        #expect(prefs.overlayEnabled)
+        #expect(overlay.windows.count == 1)
+        #expect(sut.overlayItem.state == .on)
     }
 
     @Test func toggleLoginItemEnables() {

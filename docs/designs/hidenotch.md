@@ -116,7 +116,9 @@ public protocol LoginItemControlling: AnyObject {
 
 - `NSStatusItem`，图标使用 SF Symbol（如 `rectangle.topthird.inset.filled`）；若 `NSImage(systemSymbolName:...)` 加载失败（返回 nil），回退为文字标题 `"HN"`，避免图标不可见。
 - 菜单：
-  - 「黑色菜单栏」（✓ 反映 `Preferences.overlayEnabled`）→ 切换并驱动 `OverlayController.isEnabled`。
+  - 「隐藏刘海」（✓ 反映 `Preferences.overlayEnabled`）→ 切换并驱动 `OverlayController.isEnabled`。
+    - 从关闭切到开启前，先弹出确认 `NSAlert`（`confirmEnable`，默认实现 `askToEnable()`）：`NSApplication.shared.activate()` 后展示，messageText 「隐藏刘海」，informativeText 「将把带刘海屏幕的菜单栏背景变成黑色，与刘海融为一体。」，按钮「开启」（默认）/「取消」。取消则不写入 preference、不创建窗口、菜单项保持 `.off`。
+    - 关闭时不弹确认；App 启动（含首次启动、登录项启动）也不弹确认——`AppDelegate` 不受影响。
   - 「开机自启」（✓ 仅当 `LoginItemControlling.state == .enabled`）：
     - 点击时若当前 `state == .requiresApproval`，调用 `openSystemSettings()` 打开系统设置登录项页面，不调用 `setEnabled`。
     - 否则 `.enabled` → `setEnabled(false)`；`.disabled` → `setEnabled(true)`；抛错时记录 `os_log` 并置失败标记。
@@ -130,7 +132,7 @@ public protocol LoginItemControlling: AnyObject {
 启动 → Preferences 读取 → OverlayController.isEnabled = pref → refresh()
                         → StatusItemController 挂载
 屏幕参数变化 / 唤醒 / 切换空间 → OverlayController.refresh()
-菜单切换「黑色菜单栏」 → Preferences 写入 → OverlayController.isEnabled
+菜单切换「隐藏刘海」（开启前需确认）→ Preferences 写入 → OverlayController.isEnabled
 菜单切换「开机自启」   → LoginItemService.setEnabled
 ```
 
