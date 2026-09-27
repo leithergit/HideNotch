@@ -35,3 +35,15 @@ enum Screens {
         visibleFrame: CGRect(x: 1800, y: 0, width: 1920, height: 1055),
         safeAreaTop: 0)
 }
+
+struct LoginItemError: Error {}
+
+@MainActor
+final class FakeLoginItem: LoginItemControlling {
+    var isEnabled = false
+    var shouldFail = false
+    func setEnabled(_ on: Bool) throws {
+        if shouldFail { throw LoginItemError() }
+        isEnabled = on
+    }
+}
