@@ -40,7 +40,9 @@
   - `HideNotch`（executable）：`main.swift` 薄入口，仅创建 `NSApplication` 与 `AppDelegate`。
   - `IconGen`（executable）：`main.swift` 用法 `IconGen <output.iconset dir>`，依赖 `HideNotchCore`，调用 `NotchIcon.appIconPNG(pixels:)` 写出标准 10 个 `.iconset` 文件（16/32/32/64/128/256/256/512/512/1024）；参数错误或写入失败时非零退出并打印原因。
   - `HideNotchTests`：Swift Testing 单元测试。
-- `scripts/build-app.sh`：`swift build -c release` → 用 `IconGen` 生成 `.build/AppIcon.iconset` → `iconutil -c icns` 产出 `Contents/Resources/AppIcon.icns` → 组装 `HideNotch.app`（`Info.plist` 含 `LSUIElement=YES`、`CFBundleIdentifier=com.leether.HideNotch`、`CFBundleIconFile=AppIcon`）→ ad-hoc `codesign` → 复制到 `~/Applications`。
+- `scripts/assemble-app.sh <sign-identity>`：`swift build -c release` → 用 `IconGen` 生成 `.build/AppIcon.iconset` → `iconutil -c icns` 产出 `Contents/Resources/AppIcon.icns` → 组装 `.build/HideNotch.app`（`Info.plist` 含 `LSUIElement=YES`、`CFBundleIdentifier=com.leether.HideNotch`、`CFBundleIconFile=AppIcon`）→ 按传入身份 `codesign`（`-` 为 ad-hoc；否则 `--options runtime --timestamp` 签名）→ `codesign --verify --strict` 校验。
+- `scripts/build-app.sh`：调用 `scripts/assemble-app.sh -`（ad-hoc 签名）→ 复制到 `~/Applications`，供本机日常调试使用。
+- `scripts/build-dmg.sh`：调用 `scripts/assemble-app.sh` 并传入 Developer ID 签名身份 → 组装 `dist/HideNotch-<version>.dmg`（内含 `Applications` 软链接）→ 对 DMG 签名 → `xcrun notarytool submit --wait` 提交 Apple 公证 → 通过后 `xcrun stapler staple` 装订 → `spctl --assess` 验证 Gatekeeper 放行。用于产出可分发的签名 + 公证 DMG。
 
 ## 4. 组件
 
