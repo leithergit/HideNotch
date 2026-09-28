@@ -26,3 +26,21 @@
 - 已安装并开机自启：`~/Applications/HideNotch.app`
 - 未跟踪文件 `resumeclaud.sh` 非本项目产出，未提交
 - 无环境变量改动
+
+## 2026-09-27（晚）— 合并 main + 发行版 DMG 1.1.0
+
+**本次完成**
+- `feature/hidenotch-v1` 合并为 `main`（分支已删除）
+- 锁屏 Spike：任何窗口层级在 macOS 27 锁屏上均不可见 → 接受限制，写入设计 §6.1
+- 发行打包（`feature/dmg-release` 快进合并入 main，分支已删除）：`scripts/assemble-app.sh`（共用组装）、`scripts/build-dmg.sh`（Developer ID 签名 + hardened runtime + 公证 + staple + Gatekeeper 检查）、版本 1.1.0、README
+- 产物：`dist/HideNotch-1.1.0.dmg`（gitignored），公证 Accepted（id b94bc65a-5650-4279-9893-2a7918a43c25），`spctl`：accepted / Notarized Developer ID
+
+**未完成 / 注意**
+- `build-dmg.sh` 公证失败时取日志的分支未实际跑过；若 notarytool 在 Invalid 时非零退出，`set -e` 会先终止（不会产出未公证 DMG，但看不到日志）
+- 公证凭证：钥匙串 profile `HideNotch`（Team Z8NL57N2AP）；开发者协议需保持有效，否则 403
+
+**下次起点建议**
+- 发新版：改 `Resources/Info.plist` 版本号 → `scripts/build-dmg.sh`
+
+**当前状态**
+- 分支：`main`（无远程）；未跟踪 `resumeclaud.sh` 非本项目产出
