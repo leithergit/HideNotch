@@ -23,6 +23,13 @@ rm -rf "$ICONSET"
 mkdir -p "$APP/Contents/Resources"
 iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/AppIcon.icns"
 
+RESOURCE_BUNDLE=".build/release/HideNotch_HideNotchCore.bundle"
+if [ ! -d "$RESOURCE_BUNDLE" ]; then
+    echo "error: $RESOURCE_BUNDLE not found (Bundle.module would fatalError at launch without it)" >&2
+    exit 1
+fi
+cp -R "$RESOURCE_BUNDLE" "$APP/Contents/Resources/"
+
 if [ "$IDENTITY" = "-" ]; then
     codesign --force --sign - "$APP"
 else

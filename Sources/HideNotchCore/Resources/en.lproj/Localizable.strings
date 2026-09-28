@@ -1,0 +1,9 @@
+"menu.hideNotch" = "Hide Notch";
+"menu.launchAtLogin" = "Launch at Login";
+"menu.launchAtLogin.failed" = "Launch at Login (Failed)";
+"menu.launchAtLogin.needsApproval" = "Launch at Login (Approve in System Settings)";
+"menu.quit" = "Quit";
+"alert.enable.title" = "Hide Notch";
+"alert.enable.message" = "The menu bar background on screens with a notch will turn black so it blends in with the notch.";
+"alert.enable.confirm" = "Turn On";
+"alert.enable.cancel" = "Cancel";

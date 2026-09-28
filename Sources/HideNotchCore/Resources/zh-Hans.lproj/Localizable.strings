@@ -1,0 +1,9 @@
+"menu.hideNotch" = "隐藏刘海";
+"menu.launchAtLogin" = "开机自启";
+"menu.launchAtLogin.failed" = "开机自启（失败）";
+"menu.launchAtLogin.needsApproval" = "开机自启（需在系统设置中批准）";
+"menu.quit" = "退出";
+"alert.enable.title" = "隐藏刘海";
+"alert.enable.message" = "将把带刘海屏幕的菜单栏背景变成黑色，与刘海融为一体。";
+"alert.enable.confirm" = "开启";
+"alert.enable.cancel" = "取消";

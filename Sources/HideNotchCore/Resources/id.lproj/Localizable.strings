@@ -1,0 +1,9 @@
+"menu.hideNotch" = "Sembunyikan notch";
+"menu.launchAtLogin" = "Buka saat login";
+"menu.launchAtLogin.failed" = "Buka saat login (gagal)";
+"menu.launchAtLogin.needsApproval" = "Buka saat login (setujui di Pengaturan Sistem)";
+"menu.quit" = "Keluar";
+"alert.enable.title" = "Sembunyikan notch";
+"alert.enable.message" = "Latar bilah menu pada layar yang memiliki notch akan berubah menjadi hitam agar menyatu dengan notch.";
+"alert.enable.confirm" = "Aktifkan";
+"alert.enable.cancel" = "Batal";

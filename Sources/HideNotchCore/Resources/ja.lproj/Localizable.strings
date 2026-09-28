@@ -1,0 +1,9 @@
+"menu.hideNotch" = "ノッチを隠す";
+"menu.launchAtLogin" = "ログイン時に起動";
+"menu.launchAtLogin.failed" = "ログイン時に起動（失敗）";
+"menu.launchAtLogin.needsApproval" = "ログイン時に起動（システム設定で許可が必要）";
+"menu.quit" = "終了";
+"alert.enable.title" = "ノッチを隠す";
+"alert.enable.message" = "ノッチのある画面のメニューバー背景を黒にして、ノッチと一体化させます。";
+"alert.enable.confirm" = "オンにする";
+"alert.enable.cancel" = "キャンセル";

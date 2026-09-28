@@ -1,0 +1,9 @@
+"menu.hideNotch" = "Notch ausblenden";
+"menu.launchAtLogin" = "Beim Anmelden öffnen";
+"menu.launchAtLogin.failed" = "Beim Anmelden öffnen (fehlgeschlagen)";
+"menu.launchAtLogin.needsApproval" = "Beim Anmelden öffnen (in den Systemeinstellungen erlauben)";
+"menu.quit" = "Beenden";
+"alert.enable.title" = "Notch ausblenden";
+"alert.enable.message" = "Der Hintergrund der Menüleiste auf Bildschirmen mit Notch wird schwarz, damit er mit der Notch verschmilzt.";
+"alert.enable.confirm" = "Einschalten";
+"alert.enable.cancel" = "Abbrechen";

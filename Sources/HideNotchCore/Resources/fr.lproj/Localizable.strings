@@ -1,0 +1,9 @@
+"menu.hideNotch" = "Masquer l'encoche";
+"menu.launchAtLogin" = "Lancer à l'ouverture de session";
+"menu.launchAtLogin.failed" = "Lancer à l'ouverture de session (échec)";
+"menu.launchAtLogin.needsApproval" = "Lancer à l'ouverture de session (à autoriser dans Réglages Système)";
+"menu.quit" = "Quitter";
+"alert.enable.title" = "Masquer l'encoche";
+"alert.enable.message" = "L'arrière-plan de la barre des menus des écrans à encoche deviendra noir pour se fondre avec l'encoche.";
+"alert.enable.confirm" = "Activer";
+"alert.enable.cancel" = "Annuler";

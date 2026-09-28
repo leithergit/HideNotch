@@ -35,12 +35,13 @@
 ## 3. 工程形态
 
 - Swift Package Manager，无 `.xcodeproj`。最低 macOS 26，Swift 6 语言模式。
+- `Package.swift`：`defaultLocalization: "en"`；`HideNotchCore` target 含 `resources: [.process("Resources")]`，构建产出 `HideNotch_HideNotchCore.bundle`（`Bundle.module`）。
 - Targets：
-  - `HideNotchCore`（library）：全部逻辑，可测试。
+  - `HideNotchCore`（library）：全部逻辑，可测试；`Resources/<lang>.lproj/Localizable.strings` 提供 13 语言本地化文案（见 §4.7）。
   - `HideNotch`（executable）：`main.swift` 薄入口，仅创建 `NSApplication` 与 `AppDelegate`。
   - `IconGen`（executable）：`main.swift` 用法 `IconGen <output.iconset dir>`，依赖 `HideNotchCore`，调用 `NotchIcon.appIconPNG(pixels:)` 写出标准 10 个 `.iconset` 文件（16/32/32/64/128/256/256/512/512/1024）；参数错误或写入失败时非零退出并打印原因。
   - `HideNotchTests`：Swift Testing 单元测试。
-- `scripts/assemble-app.sh <sign-identity>`：`swift build -c release` → 用 `IconGen` 生成 `.build/AppIcon.iconset` → `iconutil -c icns` 产出 `Contents/Resources/AppIcon.icns` → 组装 `.build/HideNotch.app`（`Info.plist` 含 `LSUIElement=YES`、`CFBundleIdentifier=com.leether.HideNotch`、`CFBundleIconFile=AppIcon`）→ 按传入身份 `codesign`（`-` 为 ad-hoc；否则 `--options runtime --timestamp` 签名）→ `codesign --verify --strict` 校验。
+- `scripts/assemble-app.sh <sign-identity>`：`swift build -c release` → 用 `IconGen` 生成 `.build/AppIcon.iconset` → `iconutil -c icns` 产出 `Contents/Resources/AppIcon.icns` → 复制 `.build/release/HideNotch_HideNotchCore.bundle` 到 `Contents/Resources/`（缺失则报错退出，因为 `Bundle.module` 找不到资源包会 `fatalError`）→ 组装 `.build/HideNotch.app`（`Info.plist` 含 `LSUIElement=YES`、`CFBundleIdentifier=com.leether.HideNotch`、`CFBundleIconFile=AppIcon`、`CFBundleLocalizations`、`CFBundleDevelopmentRegion=en`）→ 按传入身份 `codesign`（`-` 为 ad-hoc；否则 `--options runtime --timestamp` 签名）→ `codesign --verify --strict` 校验。
 - `scripts/build-app.sh`：调用 `scripts/assemble-app.sh -`（ad-hoc 签名）→ 复制到 `~/Applications`，供本机日常调试使用。
 - `scripts/build-dmg.sh`：调用 `scripts/assemble-app.sh` 并传入 Developer ID 签名身份 → 组装 `dist/HideNotch-<version>.dmg`（内含 `Applications` 软链接）→ 对 DMG 签名 → `xcrun notarytool submit --wait` 提交 Apple 公证 → 通过后 `xcrun stapler staple` 装订 → `spctl --assess` 验证 Gatekeeper 放行。用于产出可分发的签名 + 公证 DMG。
 
@@ -118,16 +119,24 @@ public protocol LoginItemControlling: AnyObject {
 ### 4.6 `StatusItemController`
 
 - `NSStatusItem`，图标使用 `NotchIcon.menuBarImage()`：代码绘制的自定义 glyph（屏幕轮廓 + 顶部实心条 + 从条中央向下凸出的刘海），18×18 pt 模板图（`isTemplate = true`，随浅色/深色菜单栏自动着色）。同一套 `NotchIcon`（`Sources/HideNotchCore/NotchIcon.swift`）也用于生成 App 图标（见 §3 `IconGen`），两者共享同一份 `GlyphLayout` 几何比例，不重复实现。
+- 菜单文字全部来自 `L10n`（见 §4.7），随系统语言本地化；下列文案为 zh-Hans 取值，未做行为变更。
 - 菜单：
-  - 「隐藏刘海」（✓ 反映 `Preferences.overlayEnabled`）→ 切换并驱动 `OverlayController.isEnabled`。
-    - 从关闭切到开启前，先弹出确认 `NSAlert`（`confirmEnable`，默认实现 `askToEnable()`）：`NSApplication.shared.activate()` 后展示，messageText 「隐藏刘海」，informativeText 「将把带刘海屏幕的菜单栏背景变成黑色，与刘海融为一体。」，按钮「开启」（默认）/「取消」。取消则不写入 preference、不创建窗口、菜单项保持 `.off`。
+  - 「隐藏刘海」（`L10n.hideNotch`，✓ 反映 `Preferences.overlayEnabled`）→ 切换并驱动 `OverlayController.isEnabled`。
+    - 从关闭切到开启前，先弹出确认 `NSAlert`（`confirmEnable`，默认实现 `askToEnable()`）：`NSApplication.shared.activate()` 后展示，messageText `L10n.enableAlertTitle`「隐藏刘海」，informativeText `L10n.enableAlertMessage`「将把带刘海屏幕的菜单栏背景变成黑色，与刘海融为一体。」，按钮 `L10n.enableAlertConfirm`「开启」（默认）/`L10n.enableAlertCancel`「取消」。取消则不写入 preference、不创建窗口、菜单项保持 `.off`。
     - 关闭时不弹确认；App 启动（含首次启动、登录项启动）也不弹确认——`AppDelegate` 不受影响。
-  - 「开机自启」（✓ 仅当 `LoginItemControlling.state == .enabled`）：
+  - 「开机自启」（`L10n.launchAtLogin`，✓ 仅当 `LoginItemControlling.state == .enabled`）：
     - 点击时若当前 `state == .requiresApproval`，调用 `openSystemSettings()` 打开系统设置登录项页面，不调用 `setEnabled`。
     - 否则 `.enabled` → `setEnabled(false)`；`.disabled` → `setEnabled(true)`；抛错时记录 `os_log` 并置失败标记。
-    - 标题优先级：失败标记 → 「开机自启（失败）」；否则 `state == .requiresApproval` → 「开机自启（需在系统设置中批准）」；否则「开机自启」。
-  - 分隔线，「退出」。
+    - 标题优先级：失败标记 → `L10n.launchAtLoginFailed`「开机自启（失败）」；否则 `state == .requiresApproval` → `L10n.launchAtLoginNeedsApproval`「开机自启（需在系统设置中批准）」；否则 `L10n.launchAtLogin`「开机自启」。
+  - 分隔线，「退出」（`L10n.quit`）。
 - 菜单每次打开前（`menuWillOpen`）刷新勾选状态与标题。
+
+### 4.7 `L10n`
+
+- `Sources/HideNotchCore/L10n.swift`：`supportedLanguages`（13 个 lproj 目录名：`en`、`zh-Hans`、`zh-Hant`、`ja`、`ko`、`fr`、`de`、`es`、`it`、`pt`、`th`、`vi`、`id`）与 `keys`（`menu.hideNotch`、`menu.launchAtLogin`、`menu.launchAtLogin.failed`、`menu.launchAtLogin.needsApproval`、`menu.quit`、`alert.enable.title`、`alert.enable.message`、`alert.enable.confirm`、`alert.enable.cancel`）。
+- 每个 key 对应一个静态计算属性（如 `L10n.hideNotch`），内部调用 `tr(_:bundle:)` → `bundle.localizedString(forKey:value:table:)`，`bundle` 默认 `Bundle.module`（SwiftPM 生成，随 `HideNotchCore` target 的 `resources: [.process("Resources")]` 打包为 `HideNotch_HideNotchCore.bundle`）。
+- 文案来自 `Resources/<lang>.lproj/Localizable.strings`；`Package.swift` 声明 `defaultLocalization: "en"` 作为开发语言与系统找不到匹配语言时的回退。
+- `StatusItemController` 与 `askToEnable()` 的全部菜单 / 弹窗文案均通过 `L10n` 取得，无硬编码文案。
 
 ## 5. 数据流
 

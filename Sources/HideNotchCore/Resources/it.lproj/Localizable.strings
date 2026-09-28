@@ -1,0 +1,9 @@
+"menu.hideNotch" = "Nascondi il notch";
+"menu.launchAtLogin" = "Apri al login";
+"menu.launchAtLogin.failed" = "Apri al login (non riuscito)";
+"menu.launchAtLogin.needsApproval" = "Apri al login (approva in Impostazioni di Sistema)";
+"menu.quit" = "Esci";
+"alert.enable.title" = "Nascondi il notch";
+"alert.enable.message" = "Lo sfondo della barra dei menu degli schermi con notch diventerà nero per fondersi con il notch.";
+"alert.enable.confirm" = "Attiva";
+"alert.enable.cancel" = "Annulla";

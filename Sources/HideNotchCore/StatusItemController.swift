@@ -4,7 +4,6 @@ import os
 @MainActor
 public final class StatusItemController: NSObject, NSMenuDelegate {
     private static let log = Logger(subsystem: "com.leether.HideNotch", category: "StatusItem")
-    private static let loginTitle = "开机自启"
 
     private let preferences: Preferences
     private let overlay: OverlayController
@@ -14,8 +13,8 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
     private var loginItemFailed = false
 
     let menu = NSMenu()
-    let overlayItem = NSMenuItem(title: "隐藏刘海", action: #selector(toggleOverlay), keyEquivalent: "")
-    let loginMenuItem = NSMenuItem(title: StatusItemController.loginTitle, action: #selector(toggleLoginItem), keyEquivalent: "")
+    let overlayItem = NSMenuItem(title: L10n.hideNotch, action: #selector(toggleOverlay), keyEquivalent: "")
+    let loginMenuItem = NSMenuItem(title: L10n.launchAtLogin, action: #selector(toggleLoginItem), keyEquivalent: "")
 
     public init(
         preferences: Preferences, overlay: OverlayController, loginItem: LoginItemControlling,
@@ -27,7 +26,7 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
         self.confirmEnable = confirmEnable
         super.init()
 
-        let quitItem = NSMenuItem(title: "退出", action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: L10n.quit, action: #selector(quit), keyEquivalent: "q")
         for item in [overlayItem, loginMenuItem, quitItem] {
             item.target = self
         }
@@ -65,10 +64,10 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
     public static func askToEnable() -> Bool {
         NSApplication.shared.activate()
         let alert = NSAlert()
-        alert.messageText = "隐藏刘海"
-        alert.informativeText = "将把带刘海屏幕的菜单栏背景变成黑色，与刘海融为一体。"
-        alert.addButton(withTitle: "开启")
-        alert.addButton(withTitle: "取消")
+        alert.messageText = L10n.enableAlertTitle
+        alert.informativeText = L10n.enableAlertMessage
+        alert.addButton(withTitle: L10n.enableAlertConfirm)
+        alert.addButton(withTitle: L10n.enableAlertCancel)
         return alert.runModal() == .alertFirstButtonReturn
     }
 
@@ -96,11 +95,11 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
         overlayItem.state = preferences.overlayEnabled ? .on : .off
         loginMenuItem.state = loginItem.state == .enabled ? .on : .off
         if loginItemFailed {
-            loginMenuItem.title = "\(Self.loginTitle)（失败）"
+            loginMenuItem.title = L10n.launchAtLoginFailed
         } else if loginItem.state == .requiresApproval {
-            loginMenuItem.title = "\(Self.loginTitle)（需在系统设置中批准）"
+            loginMenuItem.title = L10n.launchAtLoginNeedsApproval
         } else {
-            loginMenuItem.title = Self.loginTitle
+            loginMenuItem.title = L10n.launchAtLogin
         }
     }
 }

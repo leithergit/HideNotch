@@ -25,7 +25,7 @@ struct StatusItemControllerTests {
 
     @Test func menuHasToggleLoginAndQuit() {
         let (sut, _, _) = makeSUT()
-        #expect(sut.menu.items.map(\.title) == ["隐藏刘海", "开机自启", "", "退出"])
+        #expect(sut.menu.items.map(\.title) == [L10n.hideNotch, L10n.launchAtLogin, "", L10n.quit])
         #expect(sut.menu.items[2].isSeparatorItem)
     }
 
@@ -72,7 +72,7 @@ struct StatusItemControllerTests {
         sut.toggleLoginItem()
         #expect(login.state == .enabled)
         #expect(sut.loginMenuItem.state == .on)
-        #expect(sut.loginMenuItem.title == "开机自启")
+        #expect(sut.loginMenuItem.title == L10n.launchAtLogin)
     }
 
     @Test func loginItemFailureIsShown() {
@@ -81,7 +81,7 @@ struct StatusItemControllerTests {
         sut.toggleLoginItem()
         #expect(login.state == .disabled)
         #expect(sut.loginMenuItem.state == .off)
-        #expect(sut.loginMenuItem.title == "开机自启（失败）")
+        #expect(sut.loginMenuItem.title == L10n.launchAtLoginFailed)
     }
 
     @Test func loginItemSuccessClearsFailure() {
@@ -90,7 +90,7 @@ struct StatusItemControllerTests {
         sut.toggleLoginItem()
         login.shouldFail = false
         sut.toggleLoginItem()
-        #expect(sut.loginMenuItem.title == "开机自启")
+        #expect(sut.loginMenuItem.title == L10n.launchAtLogin)
         #expect(sut.loginMenuItem.state == .on)
     }
 
@@ -105,7 +105,7 @@ struct StatusItemControllerTests {
         let (sut, _, _) = makeSUT()
         login.stateAfterEnable = .requiresApproval
         sut.toggleLoginItem()
-        #expect(sut.loginMenuItem.title == "开机自启（需在系统设置中批准）")
+        #expect(sut.loginMenuItem.title == L10n.launchAtLoginNeedsApproval)
         #expect(sut.loginMenuItem.state == .off)
     }
 
@@ -121,6 +121,6 @@ struct StatusItemControllerTests {
         let (sut, _, _) = makeSUT()
         login.state = .requiresApproval
         sut.menuWillOpen(sut.menu)
-        #expect(sut.loginMenuItem.title == "开机自启（需在系统设置中批准）")
+        #expect(sut.loginMenuItem.title == L10n.launchAtLoginNeedsApproval)
     }
 }

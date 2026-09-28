@@ -1,0 +1,9 @@
+"menu.hideNotch" = "Ocultar el notch";
+"menu.launchAtLogin" = "Abrir al iniciar sesión";
+"menu.launchAtLogin.failed" = "Abrir al iniciar sesión (error)";
+"menu.launchAtLogin.needsApproval" = "Abrir al iniciar sesión (aprobar en Ajustes del Sistema)";
+"menu.quit" = "Salir";
+"alert.enable.title" = "Ocultar el notch";
+"alert.enable.message" = "El fondo de la barra de menús de las pantallas con notch se volverá negro para fundirse con el notch.";
+"alert.enable.confirm" = "Activar";
+"alert.enable.cancel" = "Cancelar";

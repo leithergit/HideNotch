@@ -1,0 +1,9 @@
+"menu.hideNotch" = "ซ่อนรอยบาก";
+"menu.launchAtLogin" = "เปิดเมื่อเข้าสู่ระบบ";
+"menu.launchAtLogin.failed" = "เปิดเมื่อเข้าสู่ระบบ (ล้มเหลว)";
+"menu.launchAtLogin.needsApproval" = "เปิดเมื่อเข้าสู่ระบบ (ต้องอนุมัติในการตั้งค่าระบบ)";
+"menu.quit" = "ออก";
+"alert.enable.title" = "ซ่อนรอยบาก";
+"alert.enable.message" = "พื้นหลังของแถบเมนูบนหน้าจอที่มีรอยบากจะเปลี่ยนเป็นสีดำ เพื่อให้กลืนไปกับรอยบาก";
+"alert.enable.confirm" = "เปิด";
+"alert.enable.cancel" = "ยกเลิก";

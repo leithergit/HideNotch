@@ -1,0 +1,9 @@
+"menu.hideNotch" = "隱藏瀏海";
+"menu.launchAtLogin" = "登入時啟動";
+"menu.launchAtLogin.failed" = "登入時啟動（失敗）";
+"menu.launchAtLogin.needsApproval" = "登入時啟動（需在系統設定中核准）";
+"menu.quit" = "結束";
+"alert.enable.title" = "隱藏瀏海";
+"alert.enable.message" = "將把有瀏海螢幕的選單列背景變成黑色，與瀏海融為一體。";
+"alert.enable.confirm" = "開啟";
+"alert.enable.cancel" = "取消";

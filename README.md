@@ -1,47 +1,53 @@
+[简体中文](README.zh-CN.md)
+
 # HideNotch
 
-把带刘海屏幕的菜单栏区域涂成纯黑，让刘海与菜单栏融为一体的 macOS 菜单栏小工具。
+A macOS menu-bar utility that paints the menu bar area on notched screens pure black, so the notch blends in with the menu bar.
 
-## 系统要求
+## Requirements
 
-- macOS 26 及以上
-- 带刘海内屏的 MacBook（外接无刘海显示器不受影响）
+- macOS 26 or later
+- A MacBook with a notched built-in display (external, non-notched displays are unaffected)
 
-## 安装
+## Installation
 
-1. 打开下载的 `HideNotch-<版本号>.dmg`。
-2. 把 `HideNotch.app` 拖到窗口里的 `Applications` 图标上完成安装。
-3. 首次启动：从 `~/Applications` 或「应用程序」文件夹双击打开 `HideNotch.app`。App 无 Dock 图标，运行后仅在菜单栏显示图标。
+1. Open the downloaded `HideNotch-<version>.dmg`.
+2. Drag `HideNotch.app` onto the `Applications` icon in the window to install it.
+3. First launch: double-click `HideNotch.app` from `~/Applications` or the Applications folder. The app has no Dock icon; once running it only shows an icon in the menu bar.
 
-## 使用
+## Usage
 
-点击菜单栏图标，可看到以下菜单项：
+Click the menu-bar icon to see the following menu items:
 
-- **隐藏刘海**：开关黑条覆盖。勾选状态反映当前是否生效。从关闭切换到开启时会先弹出确认提示；关闭、以及 App 启动（含开机自启）时不会弹确认。
-- **开机自启**：勾选后登录时自动启动 App。若系统要求在「系统设置」中批准登录项，菜单会提示「开机自启（需在系统设置中批准）」，再次点击会打开系统设置对应页面。
-- **退出**：退出 App。
+- **Hide Notch**: toggles the black bar overlay. The checkmark reflects whether it's currently active. Turning it on shows a confirmation prompt first; turning it off, and app launch (including launch at login), do not prompt.
+- **Launch at Login**: when checked, the app starts automatically at login. If the system requires approval in System Settings, the menu shows "Launch at Login (Approve in System Settings)"; clicking it again opens the corresponding System Settings page.
+- **Quit**: quits the app.
 
-## 已知限制
+## Languages
 
-- **锁屏 / 睡眠唤醒后的解锁界面**：无法处理，刘海会短暂可见——锁屏界面不会合成当前用户会话内的应用窗口。
-- **重启后首个登录界面（开启 FileVault 时）**：无法处理，该界面处于 FileVault 解锁前的启动环境，第三方代码无法运行。
-- **注销 / 切换用户的登录窗口**：v1 未实现（需要安装需要管理员权限的登录前代理）。
-- **不显示刘海的分辨率 / 外接显示器**：不处理，符合设计目标（无刘海无需隐藏）。
+The interface is localized into 13 languages: English (default/fallback), Simplified Chinese, Traditional Chinese, Japanese, Korean, French, German, Spanish, Italian, Portuguese, Thai, Vietnamese, and Indonesian. Translations are machine-assisted; corrections are welcome via issues/PRs.
 
-## 从源码构建
+## Known Limitations
+
+- **Lock screen / wake-from-sleep unlock screen**: not handled, the notch is briefly visible — the lock screen does not composite application windows from the current user session.
+- **First login screen after reboot (with FileVault enabled)**: not handled, that screen runs in the pre-unlock boot environment where third-party code cannot run.
+- **Logout / switch-user login window**: not implemented in v1 (would require installing a pre-login agent that needs administrator privileges).
+- **Resolutions / external displays without a notch**: intentionally not handled (nothing to hide without a notch).
+
+## Building from Source
 
 ```bash
-swift test              # 运行单元测试
-scripts/build-app.sh    # ad-hoc 签名构建，安装到 ~/Applications，供本机调试
-scripts/build-dmg.sh    # 生成签名 + 公证的可分发 DMG（dist/HideNotch-<版本号>.dmg）
+swift test              # run the unit tests
+scripts/build-app.sh    # ad-hoc signed build, installed to ~/Applications for local debugging
+scripts/build-dmg.sh    # produce a signed + notarized distributable DMG (dist/HideNotch-<version>.dmg)
 ```
 
-`scripts/build-dmg.sh` 需要以下环境变量（均有默认值，通常无需设置）：
+`scripts/build-dmg.sh` requires the following environment variables (both have defaults, so you usually don't need to set them):
 
-- `HIDENOTCH_SIGN_IDENTITY`：Developer ID Application 签名身份，默认 `Developer ID Application: XIONGGAO LI (Z8NL57N2AP)`。
-- `HIDENOTCH_NOTARY_PROFILE`：`xcrun notarytool` 使用的 keychain profile 名称，默认 `HideNotch`。
+- `HIDENOTCH_SIGN_IDENTITY`: Developer ID Application signing identity, defaults to `Developer ID Application: XIONGGAO LI (Z8NL57N2AP)`.
+- `HIDENOTCH_NOTARY_PROFILE`: the keychain profile name used by `xcrun notarytool`, defaults to `HideNotch`.
 
-首次在一台机器上使用前，需要用你自己的 Apple ID 和 App 专用密码一次性写入 keychain profile（**不要**把 Apple ID / 密码写进脚本或代码库）：
+Before first use on a machine, store your own Apple ID and app-specific password in the keychain profile once (**never** put your Apple ID / password into scripts or the repository):
 
 ```bash
 xcrun notarytool store-credentials HideNotch \
@@ -50,4 +56,4 @@ xcrun notarytool store-credentials HideNotch \
   --password <app-specific-password>
 ```
 
-之后 `scripts/build-dmg.sh` 会通过该 keychain profile 静默完成签名与公证，无需再次输入凭据。
+After that, `scripts/build-dmg.sh` will silently sign and notarize using that keychain profile, without needing credentials again.

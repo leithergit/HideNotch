@@ -1,0 +1,9 @@
+"menu.hideNotch" = "Ẩn tai thỏ";
+"menu.launchAtLogin" = "Mở khi đăng nhập";
+"menu.launchAtLogin.failed" = "Mở khi đăng nhập (thất bại)";
+"menu.launchAtLogin.needsApproval" = "Mở khi đăng nhập (cần cho phép trong Cài đặt hệ thống)";
+"menu.quit" = "Thoát";
+"alert.enable.title" = "Ẩn tai thỏ";
+"alert.enable.message" = "Nền thanh menu trên màn hình có tai thỏ sẽ chuyển sang màu đen để hòa vào tai thỏ.";
+"alert.enable.confirm" = "Bật";
+"alert.enable.cancel" = "Hủy";
