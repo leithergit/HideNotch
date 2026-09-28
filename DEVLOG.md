@@ -44,3 +44,22 @@
 
 **当前状态**
 - 分支：`main`（无远程）；未跟踪 `resumeclaud.sh` 非本项目产出
+
+## 2026-09-27（夜）— 1.2.0 多语言 + GitHub 发布
+
+**本次完成**
+- 推送到 GitHub：`git@github.com:leithergit/HideNotch.git`（SSH；`gh` 已登录 leithergit）
+- 13 种语言（en 兜底、zh-Hans、zh-Hant、ja、ko、fr、de、es、it、pt、th、vi、id）：`L10n` + `Resources/<lang>.lproj/Localizable.strings`；`assemble-app.sh` 复制 `HideNotch_HideNotchCore.bundle` 进 `Contents/Resources`（缺失即报错）；README 英文 + `README.zh-CN.md`
+- 测试 41 个；审查脚本核对 117 条译文 0 差异；日语界面人工确认正常
+- 版本 1.2.0：DMG 公证 Accepted（id 40960c4c-a6c6-4e90-9ad5-37091f551ef7），Release `v1.2.0` 附 `HideNotch-1.2.0.dmg`，SHA-256 c4fc53b6…c57d（下载校验一致）
+
+**未完成 / 注意**
+- 译文为机器辅助翻译，未经母语者校对（README 已注明欢迎指正）
+- 小项：`assemble-app.sh` 资源包名写死为 `HideNotch_HideNotchCore.bundle`
+
+**下次起点建议**
+- 发新版：改 `Resources/Info.plist` 版本 → `scripts/build-dmg.sh` → `git tag -a vX.Y.Z` + push → `gh release create vX.Y.Z dist/HideNotch-X.Y.Z.dmg`
+- 本地测试某语言：`defaults write com.leether.HideNotch AppleLanguages -array ja`，测完 `defaults delete com.leether.HideNotch AppleLanguages`
+
+**当前状态**
+- 分支 `main` 与 `origin/main` 同步；标签 `v1.2.0` 已推送；本机安装 1.2.0（跟随系统语言）
